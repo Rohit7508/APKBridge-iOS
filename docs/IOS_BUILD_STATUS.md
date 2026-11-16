@@ -44,7 +44,7 @@ cd ios && xcodegen generate
 xcodebuild -project APKBridge.xcodeproj -scheme APKBridge -sdk iphoneos \
   CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO | tee ios_build.log
 ```
-The GitHub Actions `ios-build` job (macos-14 runner) runs exactly this and
+The GitHub Actions `ios-build` job (supported macOS 15 runner) runs exactly this and
 uploads the **unsigned** `.app`. If it fails, the job log contains the real
 compiler errors to fix — that log, not this file, is the source of truth.
 

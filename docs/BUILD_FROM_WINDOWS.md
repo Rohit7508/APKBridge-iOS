@@ -34,7 +34,7 @@ before `git push`.
 ## Step 3 — The build runs automatically
 `.github/workflows/ci.yml` triggers on every push. It has two jobs:
 1. **portable** (Ubuntu): builds the C++ runtime and runs all tests + conformance.
-2. **ios-build** (macOS 14): `xcodegen generate` → `xcodebuild … -sdk iphoneos`
+2. **ios-build** (macOS 15): `xcodegen generate` → `xcodebuild … -sdk iphoneos`
    with signing disabled. It **fails** if `xcodebuild` fails or if no
    `APKBridge.app` is produced, so a green check means Xcode really compiled it.
 

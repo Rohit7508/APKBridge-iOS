@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: "17" }
       - name: Verify complete public-safe source inventory
         run: python tests/test_source_inventory.py
@@ -42,12 +42,12 @@ jobs:
         run: python tests/run_conformance.py
 
   ios-build:
-    runs-on: macos-14
+    runs-on: macos-15
     needs: portable
     steps:
       - uses: actions/checkout@v4
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_15.4.app || true
+      - name: Show Xcode environment
+        run: xcode-select -p && xcodebuild -version
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Generate Xcode project
