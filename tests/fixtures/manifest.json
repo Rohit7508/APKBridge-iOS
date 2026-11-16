@@ -1,0 +1,146 @@
+[
+  {
+    "fixture": "arith.dex",
+    "entry_class": "LArith;",
+    "entry_method": "compute",
+    "shorty": "I",
+    "expected": 33,
+    "kind": "int-arith",
+    "note": "(7+5)*3 - 6/2"
+  },
+  {
+    "fixture": "loop.dex",
+    "entry_class": "LLoop;",
+    "entry_method": "sumTo",
+    "shorty": "II",
+    "expected": 55,
+    "kind": "control-flow",
+    "note": "sum 1..10 (arg n=10)"
+  },
+  {
+    "fixture": "invoke.dex",
+    "entry_class": "LMain;",
+    "entry_method": "main",
+    "shorty": "I",
+    "expected": 42,
+    "kind": "invoke-static",
+    "note": "add(20,22)"
+  },
+  {
+    "fixture": "object.dex",
+    "entry_class": "LObjMain;",
+    "entry_method": "make",
+    "shorty": "I",
+    "expected": 7,
+    "kind": "objects-fields",
+    "note": "Point.x set/get"
+  },
+  {
+    "fixture": "array.dex",
+    "entry_class": "LArr;",
+    "entry_method": "run",
+    "shorty": "I",
+    "expected": 45,
+    "kind": "arrays",
+    "note": "sum of int[3]+length"
+  },
+  {
+    "fixture": "exception.dex",
+    "entry_class": "LExc;",
+    "entry_method": "run",
+    "shorty": "I",
+    "expected": 99,
+    "kind": "exceptions",
+    "note": "throw + catch-all"
+  },
+  {
+    "fixture": "unsupported.dex",
+    "entry_class": "LUnsup;",
+    "entry_method": "run",
+    "shorty": "I",
+    "expected": "UNSUPPORTED",
+    "kind": "unsupported-opcode",
+    "note": "const then check-cast (unimplemented)"
+  },
+  {
+    "fixture": "infinite.dex",
+    "entry_class": "LInf;",
+    "entry_method": "run",
+    "shorty": "I",
+    "expected": "BUDGET",
+    "kind": "exec-limit",
+    "note": "goto self -> instruction budget"
+  },
+  {
+    "fixture": "lifecycle.dex",
+    "entry_class": "LTestApp;",
+    "entry_method": "boot",
+    "shorty": "I",
+    "expected": 7,
+    "kind": "lifecycle",
+    "note": "Application.onCreate via framework registry"
+  },
+  {
+    "fixture": "native.dex",
+    "entry_class": "LNative;",
+    "entry_method": "nyi",
+    "shorty": "I",
+    "expected": "UNSUPPORTED",
+    "kind": "native",
+    "note": "native method must be rejected explicitly"
+  },
+  {
+    "fixture": "crossdex/classes.dex",
+    "entry_class": "LLibA;",
+    "entry_method": "addA",
+    "shorty": "II",
+    "expected": 100,
+    "kind": "cross-dex",
+    "note": "standalone addA(0)=100 (no arg); library for classes2"
+  },
+  {
+    "fixture": "crossdex/classes2.dex",
+    "entry_class": "LMainB;",
+    "entry_method": "run",
+    "shorty": "I",
+    "expected": 105,
+    "kind": "cross-dex",
+    "note": "addA(5)=105 resolved across DEX via sibling classes.dex"
+  },
+  {
+    "fixture": "clinit.dex",
+    "entry_class": "LClinit;",
+    "entry_method": "getVal",
+    "shorty": "I",
+    "expected": 42,
+    "kind": "class-init",
+    "note": "<clinit> sets static before first use"
+  },
+  {
+    "fixture": "storage.dex",
+    "entry_class": "LStore;",
+    "entry_method": "boot",
+    "shorty": "I",
+    "expected": 7,
+    "kind": "storage",
+    "note": "getCacheDir+mkdirs+SharedPreferences round-trip"
+  },
+  {
+    "fixture": "clinit_rec.dex",
+    "entry_class": "LClinitRec;",
+    "entry_method": "getV",
+    "shorty": "I",
+    "expected": 5,
+    "kind": "class-init",
+    "note": "recursive <clinit> completes (reentry)"
+  },
+  {
+    "fixture": "clinit_fail.dex",
+    "entry_class": "LClinitFail;",
+    "entry_method": "getV",
+    "shorty": "I",
+    "expected": "UNSUPPORTED",
+    "kind": "class-init",
+    "note": "failed <clinit> -> class FAILED, propagated"
+  }
+]

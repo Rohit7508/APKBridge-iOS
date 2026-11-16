@@ -1,0 +1,36 @@
+# XcodeGen spec — generates APKBridge.xcodeproj on a Mac with:
+#   brew install xcodegen && xcodegen generate
+# A reviewable spec instead of a hand-written .pbxproj. REQUIRES macOS + Xcode;
+# NOT buildable on Windows/Linux — see ../docs/BUILD.md.
+#
+# The app links the tested C++ core (bridge.cpp + headers) directly and uses
+# the system zlib (libz) for the C++ ZIP reader. No third-party Swift packages
+# (ZIPFoundation is intentionally NOT used — extraction happens in tested C++).
+name: APKBridge
+options:
+  bundleIdPrefix: dev.apkbridge
+  deploymentTarget:
+    iOS: "16.0"
+targets:
+  APKBridge:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: APKBridge                      # Swift sources
+      - path: APKBridgeRuntimeBridge         # bridging header
+      - path: ../runtime/src/bridge.cpp      # C++ core (compiled into the app)
+      - path: ../runtime/include             # headers only
+        buildPhase: none
+    settings:
+      base:
+        SWIFT_OBJC_BRIDGING_HEADER: APKBridgeRuntimeBridge/APKBridge-Bridging-Header.h
+        HEADER_SEARCH_PATHS: ["$(SRCROOT)/../runtime/include"]
+        CLANG_CXX_LANGUAGE_STANDARD: "c++17"
+        CLANG_CXX_LIBRARY: "libc++"
+        OTHER_LDFLAGS: ["-lz"]               # system zlib for the ZIP reader
+        PRODUCT_BUNDLE_IDENTIFIER: dev.apkbridge.host
+        TARGETED_DEVICE_FAMILY: 1
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"

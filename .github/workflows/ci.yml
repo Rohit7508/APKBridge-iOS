@@ -1,0 +1,87 @@
+name: APKBridge CI
+
+# Two jobs:
+#  - portable: builds + tests the C++ runtime and runs the Python analyzer /
+#    conformance suites on Linux. Authoritative correctness gate, every push.
+#  - ios-build: compiles the iOS host on a real macOS runner and produces an
+#    UNSIGNED .app only. It FAILS if xcodebuild fails or no .app is produced —
+#    a green check here means Xcode actually compiled the app, not merely that
+#    this YAML exists. See docs/BUILD.md / docs/IOS_BUILD_STATUS.md.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  portable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - name: Verify complete public-safe source inventory
+        run: python tests/test_source_inventory.py
+      - name: Install zlib dev
+        run: sudo apt-get update && sudo apt-get install -y zlib1g-dev
+      - name: Build C++ runtime
+        run: cmake -S runtime -B runtime/build -DCMAKE_BUILD_TYPE=Release && cmake --build runtime/build -j
+      - name: Generate DEX fixtures
+        run: python tests/dexgen/make_fixtures.py
+      - name: Runtime + framework + lifecycle + safety tests (C++)
+        run: ./runtime/build/runtime_tests tests/fixtures
+      - name: Analyzer unit + safety tests
+        run: python tests/analyzer/test_apk_analyzer.py
+      - name: Three-way conformance (manifest vs JVM vs interpreter)
+        run: python tests/run_conformance.py
+
+  ios-build:
+    runs-on: macos-14
+    needs: portable
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app || true
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: cd ios && xcodegen generate
+      - name: Build UNSIGNED app (fails if xcodebuild fails)
+        run: |
+          set -o pipefail            # xcodebuild's exit code must propagate through the pipe
+          cd ios
+          xcodebuild -project APKBridge.xcodeproj -scheme APKBridge \
+            -configuration Release -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            2>&1 | tee ../ios_build.log
+      - name: Verify .app exists before packaging (fail if missing)
+        run: |
+          set -euo pipefail
+          cd ios
+          APP="$(find build -name 'APKBridge.app' -type d | head -1)"
+          if [ -z "$APP" ]; then
+            echo "::error::No APKBridge.app produced — build did not complete."
+            exit 1
+          fi
+          echo "Built unsigned app at: $APP"
+          mkdir -p out/Payload && cp -R "$APP" out/Payload/
+      - name: Upload build log (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-log
+          path: ios_build.log
+          if-no-files-found: warn
+      - name: Upload unsigned .app (only if produced)
+        uses: actions/upload-artifact@v4
+        with:
+          name: APKBridge-unsigned-app
+          path: ios/out
+          if-no-files-found: error

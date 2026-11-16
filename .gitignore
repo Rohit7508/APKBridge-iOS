@@ -1,0 +1,24 @@
+# Local APKs and generated analysis inputs must never be committed.
+*.apk
+*.aab
+work/
+
+# Credentials, signing material, and local environment files.
+.env
+.env.*
+*.p12
+*.mobileprovision
+*.cer
+*.key
+*.pem
+
+# Generated build and test output.
+runtime/build/
+ios/build/
+ios/out/
+ios/*.xcodeproj/
+__pycache__/
+*.py[cod]
+.DS_Store
+.idea/
+.vscode/
