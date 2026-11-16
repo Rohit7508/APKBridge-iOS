@@ -22,3 +22,9 @@ __pycache__/
 .DS_Store
 .idea/
 .vscode/
+
+# Remote Android host TLS certificate and secret keys (never push)
+remote_host/*.crt
+remote_host/*.pem
+remote_host/*.key
+remote_host/host.*

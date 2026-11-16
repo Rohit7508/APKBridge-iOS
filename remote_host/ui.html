@@ -1,0 +1,25 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>APKBridge · Remote Android</title><style>
+:root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,system-ui;background:#090b10;color:#e8edf5}*{box-sizing:border-box}body{margin:0}header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#171b24}header strong{font-size:15px}header small{color:#a5b4ca}.pill{background:#26334a;border-radius:20px;padding:5px 10px;color:#b8d4ff}main{max-width:540px;margin:auto;padding:14px}.box{border:1px solid #354056;background:#161c27;border-radius:14px;padding:18px;margin-top:16px}label{display:block;margin-bottom:8px}input{font-size:19px;width:100%;border-radius:10px;padding:12px;background:#090e18;color:white;border:1px solid #596478}button{cursor:pointer;padding:12px 15px;background:#356fe5;color:white;border:0;border-radius:10px;font-weight:600}#screen{width:auto;max-width:100%;height:auto;max-height:74dvh;object-fit:contain;display:block;margin:auto;touch-action:none;user-select:none;border:1px solid #2b3242;border-radius:13px;background:#0b0e14}#viewer{display:none}#pair{display:block}#status{font-size:12px;color:#9cacbf;padding:10px 0}nav{display:flex;gap:10px;padding:12px 0}nav button{flex:1}p{line-height:1.45;color:#aab9d0}code{color:#d8e3ff}
+</style></head><body>
+<header><strong>APKBridge · Remote Android</strong><span class="pill">Real Android</span></header><main>
+<section id="pair" class="box"><h2>Pair this iPhone</h2><p>Enter the temporary code displayed on your own Android host computer. The Android app and its login run on that Android device.</p><form method="post" action="/login"><label for="code">Pairing code</label><input id="code" name="code" autocapitalize="characters" autocomplete="off" spellcheck="false" required maxlength="32"><p><button type="submit">Connect securely</button></p></form></section>
+<section id="viewer"><img id="screen" alt="Live view of your authorized Android phone" draggable="false"><nav><button type="button" id="back">Android Back</button><button type="button" id="refresh">Refresh screen</button></nav><div id="status" role="status">Connecting…</div><p>Tap or swipe the image to control your own Android device. Some protected screens may intentionally be blank. Camera, biometrics and other hardware actions take place on the Android device.</p></section>
+</main><script>
+'use strict';
+const csrf='__SESSION_CSRF__';
+const screen=document.querySelector('#screen'), status=document.querySelector('#status');
+const authorized=Boolean(csrf);
+document.querySelector('#pair').style.display=authorized?'none':'block';
+document.querySelector('#viewer').style.display=authorized?'block':'none';
+let active=true,loading=false,start=null;
+async function frame(){if(!authorized||!active||loading)return;loading=true;try{let r=await fetch('/frame.jpg?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('Android unavailable ('+r.status+')');let blob=await r.blob();let u=URL.createObjectURL(blob);let old=screen.dataset.url;screen.src=u;screen.dataset.url=u;if(old)URL.revokeObjectURL(old);status.textContent='Connected · last frame '+new Date().toLocaleTimeString();}catch(e){status.textContent=String(e);}finally{loading=false;}}
+async function act(data){try{let r=await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify(data)});if(!r.ok)throw Error('Input not accepted ('+r.status+')');setTimeout(frame,250);}catch(e){status.textContent=String(e);}}
+function pos(e){let r=screen.getBoundingClientRect();let x=(e.clientX-r.left)/r.width, y=(e.clientY-r.top)/r.height;return{x:Math.max(0,Math.min(1,x)),y:Math.max(0,Math.min(1,y))};}
+screen.addEventListener('pointerdown',e=>{if(!authorized)return;start={...pos(e),time:Date.now()};screen.setPointerCapture(e.pointerId);});
+screen.addEventListener('pointerup',e=>{if(!start)return;let end=pos(e), dx=end.x-start.x,dy=end.y-start.y, ms=Date.now()-start.time; if(Math.hypot(dx,dy)>.025){act({action:'swipe',x0:start.x,y0:start.y,x1:end.x,y1:end.y,duration:Math.max(100,Math.min(1500,ms))});} else{act({action:'tap',x:end.x,y:end.y});}start=null;});
+screen.addEventListener('pointercancel',()=>{start=null;});
+document.querySelector('#back').addEventListener('click',()=>act({action:'back'}));
+document.querySelector('#refresh').addEventListener('click',frame);
+document.addEventListener('visibilitychange',()=>{active=!document.hidden;if(active)frame();});
+if(authorized){frame();setInterval(frame,1000);}
+</script></body></html>

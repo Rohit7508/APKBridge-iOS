@@ -36,6 +36,8 @@ jobs:
         run: python tests/dexgen/make_fixtures.py
       - name: Runtime + framework + lifecycle + safety tests (C++)
         run: ./runtime/build/runtime_tests tests/fixtures
+      - name: Secure remote Android host tests (fake device, no APK)
+        run: python -m unittest discover -s remote_host -p 'test_*.py'
       - name: Analyzer unit + safety tests
         run: python tests/analyzer/test_apk_analyzer.py
       - name: Three-way conformance (manifest vs JVM vs interpreter)
