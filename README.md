@@ -46,4 +46,3 @@ build; a green `ios-build` job means Xcode produced an unsigned `.app` bundle.
 
 This public repository intentionally excludes proprietary APKs, signing
 material, credentials, and private application-analysis reports.
-
