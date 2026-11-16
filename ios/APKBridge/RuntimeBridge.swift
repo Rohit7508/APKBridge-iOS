@@ -49,6 +49,12 @@ struct RunOutcome: Codable {
     let extra: String
 }
 
+struct DexInspection: Codable {
+    let classes: Int
+    let methods: Int
+    let strings: Int
+}
+
 enum ExecMode: String, CaseIterable, Identifiable {
     case analysis, functional
     var id: String { rawValue }
@@ -94,6 +100,16 @@ enum RuntimeBridge {
         guard let data = call(apkbridge_list_methods(dexPath, className)),
               let r = try? JSONDecoder().decode(MethodList.self, from: data) else { return [] }
         return r.methods
+    }
+
+    /// Parse a DEX through the C++ core and return its measured table counts.
+    /// Error JSON intentionally fails this strict decode and becomes nil.
+    static func inspect(dexPath: String) -> DexInspection? {
+        guard let data = call(apkbridge_inspect_dex(dexPath)),
+              let r = try? JSONDecoder().decode(DexInspection.self, from: data) else {
+            return nil
+        }
+        return r
     }
 
     static func run(dexPath: String, cls: String, method: String,
