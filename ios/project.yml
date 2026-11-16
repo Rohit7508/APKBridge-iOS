@@ -16,6 +16,12 @@ targets:
     type: application
     platform: iOS
     deploymentTarget: "16.0"
+    info:
+      path: APKBridge/Info.plist
+      properties:
+        NSLocalNetworkUsageDescription: "Connect to your authorized Android host on the local network."
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoadsInWebContent: true # Restricted to certificate-pinned HTTPS WKWebView
     sources:
       - path: APKBridge                      # Swift sources
       - path: APKBridgeRuntimeBridge         # bridging header

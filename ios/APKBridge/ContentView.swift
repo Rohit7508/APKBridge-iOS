@@ -32,6 +32,11 @@ struct ContentView: View {
             .navigationTitle("APK Library")
             .navigationDestination(for: ImportedApp.self) { AppDetail(app: $0, library: library) }
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    NavigationLink { RemoteAndroidSetupView() } label: {
+                        Label("Remote Android", systemImage: "display")
+                    }
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Button { showImporter = true } label: { Image(systemName: "plus") }
                 }

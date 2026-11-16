@@ -46,3 +46,7 @@ build; a green `ios-build` job means Xcode produced an unsigned `.app` bundle.
 
 This public repository intentionally excludes proprietary APKs, signing
 material, credentials, and private application-analysis reports.
+
+## Remote Android — real DCR login and features on iPhone
+
+The optional **Remote Android** screen connects through a certificate-pinned HTTPS pairing flow to your own Android phone, using `remote_host/` on a trusted computer. DCR **runs on the Android phone** (with its normal authentication, Android services and hardware checks), and the iPhone shows its screen and sends touch input. This does **not** make the Android APK execute natively on iOS. No modified DCR APK or credentials are committed. See [`remote_host/README.md`](remote_host/README.md), [`docs/REMOTE_ANDROID_STATUS.md`](docs/REMOTE_ANDROID_STATUS.md) and [`docs/KSIGN_STATIC_ANALYSIS.md`](docs/KSIGN_STATIC_ANALYSIS.md).
